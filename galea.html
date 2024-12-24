@@ -1,37 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>
-        calculator
-    </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="galea.css">
+    <title>Christmas Surprise</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            text-align: center;
+        }
+        .tree {
+            width: 0;
+            height: 0;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-bottom: 150px solid green;
+            position: relative;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+        }
+        .tree:after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -25px;
+            width: 50px;
+            height: 20px;
+            background: brown;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #ffffff;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+    </style>
 </head>
-<body id="troll">
-    <div id="calculator">
-        <input id="Display" readonly>
-        <div id="keys">
-            <button onclick="appendToDisplay('7')"> 7 </button>
-            <button onclick="appendToDisplay('8')"> 8 </button>
-            <button onclick="appendToDisplay('9')"> 9 </button>
-            <button onclick="appendToDisplay('+')" class="opperator-btn"> + </button>
-            <button onclick="appendToDisplay('4')"> 4 </button>
-            <button onclick="appendToDisplay('5')"> 5 </button>
-            <button onclick="appendToDisplay('6')"> 6 </button>
-            <button onclick="appendToDisplay('-')" class="opperator-btn"> - </button>
-            <button onclick="appendToDisplay('1')"> 1 </button>
-            <button onclick="appendToDisplay('2')"> 2 </button>
-            <button onclick="appendToDisplay('3')"> 3 </button>
-            <button onclick="appendToDisplay('*')" class="opperator-btn">*</button>
-            <button onclick="clearDisplay('ce')" class="btn"> ce </button>
-            <button onclick="calculate()">=</button>
-            <button onclick="appendToDisplay('.')" class="btn"> . </button>
-            <button onclick="appendToDisplay('/')" class="opperator-btn"> / </button>
-        </div>
+<body>
+    <div class="container">
+        <div class="tree" id="present"></div>
+        <canvas class="confetti" id="confettiCanvas"></canvas>
+        <div class="message" id="message"></div>
     </div>
-    
-    <script src="galea.js"></script>
+
+    <script>
+        const present = document.getElementById('present');
+        const message = document.getElementById('message');
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const ctx = confettiCanvas.getContext('2d');
+        let confetti = [];
+
+        // Confetti generator
+        function generateConfetti() {
+            for (let i = 0; i < 100; i++) {
+                confetti.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    r: Math.random() * 6 + 2,
+                    dx: Math.random() * 2 - 1,
+                    dy: Math.random() * 4 + 2,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`
+                });
+            }
+        }
+
+        // Resize canvas
+        function resizeCanvas() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Animate confetti
+        function animateConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confetti.forEach((piece, index) => {
+                ctx.beginPath();
+                ctx.arc(piece.x, piece.y, piece.r, 0, Math.PI * 2);
+                ctx.fillStyle = piece.color;
+                ctx.fill();
+                piece.x += piece.dx;
+                piece.y += piece.dy;
+                if (piece.y > confettiCanvas.height) confetti.splice(index, 1);
+            });
+            if (confetti.length) requestAnimationFrame(animateConfetti);
+        }
+
+        // Reveal message
+        function revealMessage() {
+            const sentences = [
+                "Merry Christmas, Charlene and Solar! 🎄✨",
+                "I just wanted to say thank you both for being such an important part of my 2024.",
+                "You’ve made this year feel complete, and I’m so grateful to have friends like you who bring so much joy, support, and laughter into my life.",
+                "Here’s to more amazing memories ahead.",
+                "Wishing you both a Christmas filled with love, happiness, and everything you deserve. ❤️",
+                "Stay awesome!"
+            ];
+
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < sentences.length) {
+                    message.innerHTML += `<p>${sentences[index]}</p>`;
+                    index++;
+                    message.style.visibility = 'visible';
+                    message.style.opacity = '1';
+                } else {
+                    clearInterval(interval);
+                }
+            }, 2500);
+        }
+
+        // Present click event
+        present.addEventListener('click', () => {
+            generateConfetti();
+            animateConfetti();
+            revealMessage();
+            present.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
